@@ -2,7 +2,7 @@ const express = require('express')
 const app = express();
 const cors =require("cors");
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
@@ -31,6 +31,7 @@ async function run() {
     await client.connect();
 
    const foodcollection =client.db("Foodswap").collection("availablefood")
+   const requestcollection =client.db("Foodswap").collection("requested")
 
 
    app.get("/availablefood",async(req,res)=>{
@@ -39,6 +40,36 @@ async function run() {
     res.send(result)
 
    })
+   app.get("/availablefood/:id",async(req,res)=>{
+
+    const id =req.params.id;
+    const query = {_id: new ObjectId(id)}
+    const result = await foodcollection.findOne(query)
+    res.send(result)
+
+   })
+
+
+
+//    request
+
+app.post("/requested",async (req,res)=>{
+    console.log(req.body)
+    // const doc = {
+    //     donator_name:req.body.donator_name,
+    //     donation_amount:req.body.donation_amount,
+    //     expired_date:req.body.expired_date,
+    //     requestdate:req.body.expired_date,
+    //     pickup_location:req.body.pickup_location,
+    //     email:req.body.email,
+    //     status:req.body.status
+    //   }
+  const food =req.body;
+    const result =await requestcollection.insertOne(food)
+    res.send(result)
+})
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
