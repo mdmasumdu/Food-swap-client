@@ -50,6 +50,13 @@ async function run() {
    })
 
 
+   app.post('/availablefood',async(req,res)=>{
+    const food = req.body;
+    const result =await foodcollection.insertOne(food)
+    res.send(result)
+   })
+
+
 
 //    request
 
@@ -64,8 +71,8 @@ app.post("/requested",async (req,res)=>{
     //     email:req.body.email,
     //     status:req.body.status
     //   }
-  const food =req.body;
-    const result =await requestcollection.insertOne(food)
+  const reqfood =req.body;
+    const result =await requestcollection.insertOne(reqfood)
     res.send(result)
 })
 
