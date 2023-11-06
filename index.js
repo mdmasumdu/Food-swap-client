@@ -49,34 +49,150 @@ async function run() {
 
    })
 
+   
+   app.get("/myfood",async (req,res)=>{
+    console.log(req.query)
+let  query ={};
+if(req.query?.email){
+query={donator_email:req.query.email}
+}
+const result = await foodcollection.find(query).toArray();
+res.send(result)
+
+})
+
 
    app.post('/availablefood',async(req,res)=>{
     const food = req.body;
     const result =await foodcollection.insertOne(food)
     res.send(result)
    })
+     
+
+   app.put("/availablefood/:id",async(req,res)=>{
+    const id=req.params.id
+    const updatedfood =req.body;
+    const filter = {_id:new ObjectId(id) };
+    const options = { upsert: true };
+        const doc = {
+          $set: {
+            food_name:req.body.food_name,
+            food_image:req.body.food_image,
+            donator_image:req.body.donator_image,
+            pickup_location:req.body.pickup_location,
+            donator_name:req.body.donator_name,
+            expired_date:req.body.expired_date,
+            expired_time:req.body.expired_time,
+            additional_notes:req.body.additional_notes,
+            donator_email:req.body.donator_email,
+            status:req.body.status,
+            food_quantity:req.body.food_quantity
+          },
+     
+      }
+    const result =await foodcollection.updateOne(filter,doc,options)
+    res.send(result)
+   })
 
 
+
+   app.patch('/availablefood/:id',async (req,res)=>{
+
+    const id =req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updateDoc = {
+      $set: {
+        status:"Delivered"
+      },
+    };
+    const result =await foodcollection.updateOne(filter,updateDoc,options);
+    res.send(result)
+  
+  })
+  //  
+  //  app.get('/availablefood/:id',async (req,res)=>{
+
+  //   const id =req.params.id;
+  //   let query ={};
+  //   if(req?.params?.id){
+  //     query = {_id: new ObjectId(id)}
+  //     const result = await requestcollection.find(query).toArray();
+  //   res.send(result)
+  // //   }
+  
+    
+  
+  
+  // })
+   
+
+app.delete("/availablefood/:id",async(req,res)=>{
+
+  const id =req.params.id
+  const query ={_id:new ObjectId(id)}
+const result =await foodcollection.deleteOne(query);
+res.send(result)
+
+})
 
 //    request
 
 app.post("/requested",async (req,res)=>{
     console.log(req.body)
-    // const doc = {
-    //     donator_name:req.body.donator_name,
-    //     donation_amount:req.body.donation_amount,
-    //     expired_date:req.body.expired_date,
-    //     requestdate:req.body.expired_date,
-    //     pickup_location:req.body.pickup_location,
-    //     email:req.body.email,
-    //     status:req.body.status
-    //   }
+
   const reqfood =req.body;
     const result =await requestcollection.insertOne(reqfood)
     res.send(result)
 })
 
+app.get("/myfoodreq",async (req,res)=>{
+  console.log(req.query)
+let  query ={};
+if(req.query?.email){
+query={req_email:req.query.email}
+}
+const result = await requestcollection.find(query).toArray();
+res.send(result)
 
+})
+
+
+app.get('/requested/:id',async (req,res)=>{
+
+  const id =req.params.id;
+  let query ={};
+  if(req?.params?.id){
+    query = {foodid: id}
+    const result = await requestcollection.find(query).toArray();
+  res.send(result)
+  }
+
+  
+
+
+})
+app.patch('/requested/:id',async (req,res)=>{
+
+  const id =req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: {
+      status:"Delivered"
+    },
+  };
+  const result =await requestcollection.updateOne(filter,updateDoc,options);
+  res.send(result)
+
+})
+app.delete('/requested/:id',async (req,res)=>{
+
+  const id =req.params.id
+  const query ={_id:new ObjectId(id)}
+const result =await requestcollection.deleteOne(query);
+res.send(result)
+})
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
