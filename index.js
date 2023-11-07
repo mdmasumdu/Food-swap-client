@@ -91,7 +91,10 @@ async function run() {
    })
 
    
-   app.get("/myfood",async (req,res)=>{
+   app.get("/myfood",verifytoken,async (req,res)=>{
+    if(req.user.email !== req.query.email){
+      return res.status(403).send({message:"forbiden"})
+    }
     console.log(req.query)
 let  query ={};
 if(req.query?.email){
@@ -188,6 +191,10 @@ app.post("/requested",async (req,res)=>{
 })
 
 app.get("/myfoodreq",verifytoken,async (req,res)=>{
+
+  if(req.user.email !== req.query.email){
+    return res.status(403).send({message:"forbiden"})
+  }
   console.log(req.query)
 let  query ={};
 if(req.query?.email){
@@ -199,7 +206,7 @@ res.send(result)
 })
 
 
-app.get('/requested/:id',verifytoken,async (req,res)=>{
+app.get('/requested/:id',async (req,res)=>{
 
   const id =req.params.id;
   let query ={};
