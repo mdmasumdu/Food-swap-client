@@ -2,15 +2,56 @@ const express = require('express')
 const app = express();
 const cors =require("cors");
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
 // middleware
-app.use(cors())
+app.use(cors({
+  origin:["http://localhost:5173"],
+  credentials:true
+}))
 app.use(express.json())
+app.use(cookieParser())
+
+// const verifytoken=(req,res,next)=>{
+
+//   const token =req.cookies.token;
+
+//   if(!token){
+//     return res.status(401).send({message:"an authorized"})
+//   }
+
+//   jwt.verify(token,process.env.TOken_PASS,(err,decoded)=>{
+//     if(err){
+//       return res.status(401).send({message:"an authorized"})
+//     }
+//     req.user =decoded;
+//     next()
+//   })
+
+// }
+
+// my created midlleare
+
+const verifytoken =(req,res,next)=>{
+  const token =req.cookies.token;
+  if(!token){
+   return res.status(401).send({message: "unauthorized"})
+  }
+  jwt.verify(token,process.env.TOken_PASS,(err,decoded)=>{
+    if(err){
+      return res.status(401).send({message: "unauthorized orcuured"})
+    }
+
+    req.user =decoded;
+    next()
+  })
 
 
+}
 
 
 
@@ -28,7 +69,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
    const foodcollection =client.db("Foodswap").collection("availablefood")
    const requestcollection =client.db("Foodswap").collection("requested")
@@ -146,7 +187,7 @@ app.post("/requested",async (req,res)=>{
     res.send(result)
 })
 
-app.get("/myfoodreq",async (req,res)=>{
+app.get("/myfoodreq",verifytoken,async (req,res)=>{
   console.log(req.query)
 let  query ={};
 if(req.query?.email){
@@ -158,7 +199,7 @@ res.send(result)
 })
 
 
-app.get('/requested/:id',async (req,res)=>{
+app.get('/requested/:id',verifytoken,async (req,res)=>{
 
   const id =req.params.id;
   let query ={};
@@ -194,6 +235,32 @@ const result =await requestcollection.deleteOne(query);
 res.send(result)
 })
 
+
+
+
+// jwt
+
+app.post("/jwt",async (req,res)=>{
+      const user =req?.body;
+      console.log(user)
+  const token =jwt.sign(user,process.env.TOken_PASS,{expiresIn:"1h"})
+  res.cookie("token",token,{
+    httpOnly:true,
+    secure:true,
+    sameSite:"none"
+  })
+  .send({success:true})
+
+})
+
+
+
+
+app.post("/logout",(req,res)=>{
+  const user =req.body;
+  console.log("loggingout" ,user)
+  res.clearCookie("token",{maxAge:0}).send({message:"succes"})
+})
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
