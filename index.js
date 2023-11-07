@@ -73,6 +73,7 @@ async function run() {
 
    const foodcollection =client.db("Foodswap").collection("availablefood")
    const requestcollection =client.db("Foodswap").collection("requested")
+   const contributorcollection =client.db("Foodswap").collection("contributor")
 
 
    app.get("/availablefood",async(req,res)=>{
@@ -267,6 +268,14 @@ app.post("/logout",(req,res)=>{
   const user =req.body;
   console.log("loggingout" ,user)
   res.clearCookie("token",{maxAge:0}).send({message:"succes"})
+})
+
+
+// contributor
+
+app.get("/contributors",async(req,res)=>{
+  const result = await contributorcollection.find().toArray()
+  res.send(result)
 })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
