@@ -10,29 +10,12 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-  origin:["http://localhost:5173"],
+  origin:["http://localhost:5173","https://food-swap-69128.web.app"],
   credentials:true
 }))
 app.use(express.json())
 app.use(cookieParser())
 
-// const verifytoken=(req,res,next)=>{
-
-//   const token =req.cookies.token;
-
-//   if(!token){
-//     return res.status(401).send({message:"an authorized"})
-//   }
-
-//   jwt.verify(token,process.env.TOken_PASS,(err,decoded)=>{
-//     if(err){
-//       return res.status(401).send({message:"an authorized"})
-//     }
-//     req.user =decoded;
-//     next()
-//   })
-
-// }
 
 // my created midlleare
 
@@ -155,21 +138,7 @@ res.send(result)
     res.send(result)
   
   })
-  //  
-  //  app.get('/availablefood/:id',async (req,res)=>{
 
-  //   const id =req.params.id;
-  //   let query ={};
-  //   if(req?.params?.id){
-  //     query = {_id: new ObjectId(id)}
-  //     const result = await requestcollection.find(query).toArray();
-  //   res.send(result)
-  // //   }
-  
-    
-  
-  
-  // })
    
 
 app.delete("/availablefood/:id",async(req,res)=>{
